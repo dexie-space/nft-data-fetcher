@@ -40,7 +40,7 @@ app.get(
       return res.sendStatus(404);
     }
 
-    const resizer = sharp().resize(500, 500).webp();
+    const resizer = sharp({ animated: true }).resize(500, 500).webp();
 
     res.header("Content-Type", "image/webp");
 
