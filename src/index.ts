@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import sharp from "sharp";
 import morgan from "morgan";
 import { Readable } from "stream";
-import { getNftInfos, getLauncherId, NftInfo } from "./blockchain/nft";
+import { getNftInfos, getLauncherId } from "./blockchain/nft";
 import {
   fetchAndVerifyHash,
   fetchOriginalVersionFromCache,
@@ -17,30 +17,10 @@ const DIMENSIONS = {
   medium: { width: 800, height: 800, fit: sharp.fit.contain },
 };
 
-declare global {
-  namespace Express {
-    interface Request {
-      nft: NftInfo;
-    }
-  }
-}
-
 const app: Express = express();
 const coin = new Coin();
 
 app.use(morgan("short"));
-
-app.param("nft_id", async (req: Request, res: Response, next) => {
-  const launcher_id = await getLauncherId(req.params.nft_id);
-
-  if (!launcher_id) {
-    return res.sendStatus(404);
-  }
-
-  req.nft = await getNftInfos(launcher_id, coin);
-
-  next();
-});
 
 app.get(
   "/preview/:dimension(tiny|medium|original)/:nft_id([a-z0-9]{62}).webp",
@@ -48,7 +28,15 @@ app.get(
     let data: Readable | undefined;
 
     if (req.params.dimension === "original") {
-      data = await fetchAndVerifyHash(req.nft.uris[0], req.nft.hash);
+      const launcher_id = await getLauncherId(req.params.nft_id);
+
+      if (!launcher_id) {
+        return res.sendStatus(404);
+      }
+
+      const nft = await getNftInfos(launcher_id, coin);
+
+      data = await fetchAndVerifyHash(nft.uris[0], nft.hash);
     } else {
       // for smaller versions we always use the original, since it might be cached already
       // if it is not yet cached, it will fetch the original from itself
