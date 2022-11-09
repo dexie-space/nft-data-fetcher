@@ -21,7 +21,7 @@ app.param("nft_id", async (req: Request, res: Response, next) => {
   const launcher_id = await getLauncherId(req.params.nft_id);
 
   if (!launcher_id) {
-    return res.sendStatus(204);
+    return res.sendStatus(404);
   }
 
   req.nft = await getNftInfos(launcher_id, coin);
