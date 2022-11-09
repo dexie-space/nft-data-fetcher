@@ -45,6 +45,6 @@ app.get("/data/:nft_id", async (req: Request, res: Response) => {
   });
 });
 
-app.listen(8081, () => {
-  console.log(`⚡️ running at https://localhost:8081`);
+app.listen(process.env.PORT, () => {
+  console.log(`⚡️ running at https://localhost:${process.env.PORT}`);
 });
