@@ -69,12 +69,12 @@ export class Coin {
     body: Record<string, any>
   ): Promise<T> {
     const { data } = await axios.post<T>(
-      process.env.FULLNODE_RPC + route,
+      process.env.DEXIE_RPC_ENDPOINT + route,
       body,
       {
         auth: {
-          username: process.env.RPC_USER || "",
-          password: process.env.RPC_PASSWORD || "",
+          username: process.env.DEXIE_RPC_USER || "",
+          password: process.env.DEXIE_RPC_PASSWORD || "",
         },
       }
     );
