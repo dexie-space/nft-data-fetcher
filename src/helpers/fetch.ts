@@ -34,3 +34,20 @@ export const fetchAndVerifyHash = async (
     return data_stream;
   } catch (err) {}
 };
+
+export const fetchOriginalVersionFromCache = async (
+  nft_id: string
+): Promise<Readable | undefined> => {
+  try {
+    const { data } = await axios.get<Readable>(
+      `${process.env.CACHE_ENDPOINT}/preview/original/${nft_id}.webp`,
+      {
+        responseType: "stream",
+      }
+    );
+
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+};
