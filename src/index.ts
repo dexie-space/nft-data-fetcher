@@ -4,7 +4,7 @@ import { getNftInfos, getLauncherId, NftInfo } from "./blockchain/nft";
 import { fetchAndVerifyHash } from "./helpers/fetch";
 import { Coin } from "./blockchain/coin";
 
-dotenv.config();
+dotenv.config({ path: `${__dirname}/../.env` });
 
 const app: Express = express();
 const coin = new Coin();
