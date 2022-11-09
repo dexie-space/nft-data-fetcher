@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
+import sharp from "sharp";
 import { getNftInfos, getLauncherId, NftInfo } from "./blockchain/nft";
 import { fetchAndVerifyHash } from "./helpers/fetch";
 import { Coin } from "./blockchain/coin";
@@ -29,21 +30,30 @@ app.param("nft_id", async (req: Request, res: Response, next) => {
   next();
 });
 
-app.get("/data/:nft_id", async (req: Request, res: Response) => {
-  const data = await fetchAndVerifyHash(req.nft.uris[0], req.nft.hash);
+app.get(
+  "/preview/:nft_id([a-z0-9]{62})",
+  async (req: Request, res: Response) => {
+    const data = await fetchAndVerifyHash(req.nft.uris[0], req.nft.hash);
 
-  // no data or hash does not match -> 404
-  if (!data) {
-    return res.sendStatus(404);
+    // no data or hash does not match -> 404
+    if (!data) {
+      return res.sendStatus(404);
+    }
+
+    const resizer = sharp().resize(500, 500).webp();
+
+    res.header("Content-Type", "image/webp");
+
+    data.pipe(resizer);
+
+    resizer.on("data", (data) => {
+      res.write(data);
+    });
+    resizer.on("end", () => {
+      res.end();
+    });
   }
-
-  data.on("data", (data) => {
-    res.write(data);
-  });
-  data.on("end", () => {
-    res.end();
-  });
-});
+);
 
 app.listen(process.env.PORT, () => {
   console.log(`⚡️ running at https://localhost:${process.env.PORT}`);
